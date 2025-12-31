@@ -19,6 +19,8 @@
 #include <stdint.h>
 
 // Base addresses
+#define GPIOA_BASE 0x40020000UL
+#define GPIOB_BASE 0x40020400UL
 #define GPIOC_BASE 0x40020800UL
 #define RCC_BASE   0x40023800UL
 
@@ -35,6 +37,7 @@ typedef struct {
 } GPIO_TypeDef;
 
 #define GPIOC ((GPIO_TypeDef *)GPIOC_BASE)
+#define GPIOA ((GPIO_TypeDef *)GPIOA_BASE)
 #define RCC_AHB1ENR (*(volatile uint32_t*)(RCC_BASE + 0x30))
 #define RCC_AHB1ENR_GPIOCEN (1 << 2)
 
@@ -46,12 +49,22 @@ void init_PC13(void) {
     GPIOC->PUPDR &= ~(0x3 << (13*2));       // No pull-up/down
 }
 
+void init_PA1(void){
+    RCC_AHB1ENR |= (1 << 0);                // Enable GPIOA clock
+    GPIOA->MODER &= ~(0x3 << (1*2));        // Clear mode
+    GPIOA->MODER |=  (0x1 << (1*2));        // Set output
+    GPIOA->OTYPER &= ~(1 << 1);             // Push-pull
+    GPIOA->PUPDR &= ~(0x3 << (1*2));        // No pull-up/down
+}
+
 void LED_on(void) {
     GPIOC->BSRR = (1 << (13 + 16));  // Reset PC13 → LED ON (active-low)
+    GPIOA->BSRR = (1 << (1 + 16));   // Reset PA1 → Set low
 }
 
 void LED_off(void) {
     GPIOC->BSRR = (1 << 13);         // Set PC13 → LED OFF
+    GPIOA->BSRR = (1 << 1);          // Set PA1 → Set high
 }
 
 void delay(volatile uint32_t count) { while(count--); }
@@ -59,7 +72,7 @@ void delay(volatile uint32_t count) { while(count--); }
 
 int main(void) {
     init_PC13();   // Initialize the LED pin
-
+    init_PA1();
     while(1) {
         LED_on();
         delay(500000);
