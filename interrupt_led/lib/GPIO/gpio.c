@@ -19,7 +19,7 @@ void gpio_init(GPIO_TypeDef *port, uint8_t pin, uint8_t mode){
 }
 
 void gpio_write(GPIO_TypeDef *port, uint8_t pin, uint8_t value){
-    if(~value){
+    if(value){
         port->BSRR |= 1 << (pin);
     }
     else{

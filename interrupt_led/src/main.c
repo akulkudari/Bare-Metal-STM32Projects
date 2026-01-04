@@ -87,8 +87,8 @@ void init_PA1(void){
 }
 
 void LED_on(void) {
-    GPIOA->BSRR = (1 << 2);  // Reset PC13 → LED ON (active-low)
-    GPIOA->BSRR = (1 << (1 + 16));   // Reset PA1 → Set low
+    gpio_write(GPIOA, 2, 1);  // Reset PC13 → LED ON (active-low)
+    gpio_write(GPIOA, 1, 0);   // Reset PA1 → Set low
 }
 
 void LED_off(void) {
